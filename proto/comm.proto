@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package test;
+
+service gUMI {
+  rpc GetByID (GetByIDRequest) returns (User);
+  //rpc GetByName (GetByNameRequest) returns (User);
+  //rpc GetAll (GetAllRequest) returns (stream User);
+}
+
+message GetByIDRequest {
+  uint32 id = 1;
+}
+
+//message GetByNameRequest {
+//  string name = 1;
+//}
+
+//message GetAllRequest {}
+
+message User {
+  string name = 1;
+  string email = 2;
+  uint32 id = 3;
+}
