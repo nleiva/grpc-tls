@@ -1,14 +1,8 @@
 # gRPC TLS testing
 
+Basic service to retrive user names based on their `ID`. This is just for TLS testing purposes.
+
 ## Run
-
-- Client
-
-`ID` is the user id we want to retrieve.
-
-```bash
-ID=1 make run-client
-```
 
 - Server
 
@@ -16,9 +10,26 @@ ID=1 make run-client
 make run-server
 ```
 
+- Client
+
+`ID` is the user id we want to retrieve.
+
+```bash
+export ID=1
+make run-client
+```
+
+- Help
+
+```bash
+make
+```
+
 ## Generating TSL Certificates
 
-Certificates valid for a year (`-days 365`).
+You need these before running the app. To create them run `make cert`. The certificates are valid for a year (`-days 365`).
+
+Below the step by step:
 
 - CA Signed certificates
 
@@ -50,7 +61,7 @@ For local testing you can use `'/CN=localhost'`. For Online testing `CN` needs t
 openssl req -new -sha256 -key service.key -subj "/C=US/ST=NJ/O=Test, Inc./CN=localhost" -out service.csr
 ```
 
-or
+or with a config file ([certificate.conf](certificate.conf)):
 
 ```bash
 openssl req -new -key service.key -out service.csr -config certificate.conf
@@ -62,7 +73,7 @@ Generate a certificate for your service
 openssl x509 -req -in service.csr -CA ca.cert -CAkey ca.key -CAcreateserial -out service.pem -days 365 -sha256
 ```
 
-or
+or with a config file ([certificate.conf](certificate.conf)):
 
 ```bash
 openssl x509 -req -in service.csr -CA ca.cert -CAkey ca.key -CAcreateserial -out service.pem -days 365 -sha256 -extfile certificate.conf -extensions req_ext
@@ -74,45 +85,23 @@ Verify
 openssl x509 -in service.pem -text -noout
 ```
 
-## Compiling protocol buffers
-
-```bash
-cd proto
-protoc --go_out=plugins=grpc:. comm.proto
-```
-
 ## Running in Docker Containers
 
-Setup your enviroment variables in `env.client` and `env.server`.
+Build Docker images with `make docker-build`.
 
-- Client
-
-```bash
-docker build -t client -f ./client/Dockerfile .
-docker run -t --rm --name my-client -e "ID=1" client
-```
-
-- Server
+- Run the Docker Client image. Provide any `ID`.
 
 ```bash
-docker build -t server -f ./server/Dockerfile .
-docker run -t --rm --name my-server server
+export ID=1
+make run-docker-client
 ```
 
-Just in case...
-
-[docker build](https://docs.docker.com/edge/engine/reference/commandline/build/#usage)
+- Run the Docker Server image
 
 ```bash
---tag , -t    Name and optionally a tag in the ‘name:tag’ format
---file , -f   Name of the Dockerfile (Default is ‘PATH/Dockerfile’)
+make run-docker-server
 ```
 
-[docker run](https://docs.docker.com/edge/engine/reference/commandline/container_run/#usage)
+## Compiling protocol buffers
 
-```bash
---tty , -t    Allocate a pseudo-TTY
---rm          Automatically remove the container when it exits
---name        Assign a name to the container
---env-file    Read in a file of environment variables
-```
+Run `make proto`.
