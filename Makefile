@@ -24,7 +24,16 @@ run-docker-client: ## Run Client Docker image with a given ID
 	docker run -t --rm --name my-client -e $(ID) client
 
 run-client: ## Run Client with a given ID
-	go run client/main.go -id $(ID)
+	go run client/main.go -id $(ID) -mode 1
+
+run-client-noca: ## Run Client with a given ID without CA
+	go run client/main.go -id $(ID) -mode 2
+
+run-client-ca: ## Run Client with a given ID with CA
+	go run client/main.go -id $(ID) -mode 3
+
+run-client-file: ## Run Client with a given ID and provide the Server certificate
+	go run client/main.go -id $(ID) -mode 4
 
 run-docker-server: ## Run Server Docker image
 	docker run -t --rm --name my-server server

@@ -6,84 +6,87 @@ Basic service to retrive user names based on their `ID`. This is just for TLS te
 
 - Server
 
-```bash
-make run-server
-```
+    ```bash
+    make run-server
+    ```
 
 - Client
 
-`ID` is the user id we want to retrieve.
+You need to provide an `ID` which is the id of the user we want to retrieve from the Server, for example `export ID=1`.
 
-```bash
-export ID=1
-make run-client
-```
+1. Connect using the cert the Server provides during the TLS Handshake without verifying it.
+
+    ```bash
+    make run-client
+    ```
+
+2. Connect using the cert the Server provides during the TLS Handshake and verify it.
+
+    ```bash
+    make run-client-noca
+    ```
+
+3. Connect using the cert the Server provides during the TLS Handshake and verify it with a CA cert file provided.
+
+    ```bash
+    make run-client-ca
+    ```
+
+4. Connect using a cert provided at runtime.
+
+    ```bash
+    make run-client-file
+    ```
 
 - Help
 
-```bash
-make
-```
+    ```bash
+    make
+    ```
 
 ## Generating TSL Certificates
 
-You need these before running the app. To create them run `make cert`. The certificates are valid for a year (`-days 365`).
-
-Below the step by step:
+You need these before running the examples. To create them run `make cert`. The certificates are valid for a year (`-days 365`). Below the step by step, for your reference.
 
 - CA Signed certificates
 
-[Example](https://gist.github.com/fntlnz/cf14feb5a46b2eda428e000157447309)
+1. Create Root signing Key
 
-Create Root signing Key
+    ```bash
+    openssl genrsa -out ca.key 4096
+    ```
 
-```bash
-openssl genrsa -out ca.key 4096
-```
+2. Generate self-signed Root certificate
 
-Generate self-signed Root certificate
+    ```bash
+    openssl req -new -x509 -key ca.key -sha256 -subj "/C=US/ST=NJ/O=CA, Inc." -days 365 -out ca.cert
+    ```
 
-```bash
-openssl req -new -x509 -key ca.key -sha256 -subj "/C=US/ST=NJ/O=CA, Inc." -days 365 -out ca.cert
-```
+3. Create a Key certificate for your service
 
-Create a Key certificate for your service
+    ```bash
+    openssl genrsa -out service.key 4096
+    ```
 
-```bash
-openssl genrsa -out service.key 4096
-```
+4. Create signing CSR
 
-Create signing CSR
+    For local testing you can use `'/CN=localhost'`. For Online testing `CN` needs to be replaced with your gRPC Server, for example: `'/CN=grpc.nleiva.com'`. Include this in a config file ([certificate.conf](certificate.conf)).
 
-For local testing you can use `'/CN=localhost'`. For Online testing `CN` needs to be replaced with your gRPC Server, for example: `'/CN=grpc.nleiva.com'`.
+    ```bash
+    openssl req -new -key service.key -out service.csr -config certificate.conf
+    ```
 
-```bash
-openssl req -new -sha256 -key service.key -subj "/C=US/ST=NJ/O=Test, Inc./CN=localhost" -out service.csr
-```
+5. Generate a certificate for the service
 
-or with a config file ([certificate.conf](certificate.conf)):
+    ```bash
+    openssl x509 -req -in service.csr -CA ca.cert -CAkey ca.key -CAcreateserial -out service.pem -days 365 -sha256 -extfile certificate.conf -extensions req_ext
+    ```
 
-```bash
-openssl req -new -key service.key -out service.csr -config certificate.conf
-```
+6. Verify
 
-Generate a certificate for your service
-
-```bash
-openssl x509 -req -in service.csr -CA ca.cert -CAkey ca.key -CAcreateserial -out service.pem -days 365 -sha256
-```
-
-or with a config file ([certificate.conf](certificate.conf)):
-
-```bash
-openssl x509 -req -in service.csr -CA ca.cert -CAkey ca.key -CAcreateserial -out service.pem -days 365 -sha256 -extfile certificate.conf -extensions req_ext
-```
-
-Verify
-
-```bash
-openssl x509 -in service.pem -text -noout
-```
+    ```bash
+    openssl x509 -in service.pem -text -noout
+    ```
 
 ## Running in Docker Containers
 
@@ -91,16 +94,16 @@ Build Docker images with `make docker-build`.
 
 - Run the Docker Client image. Provide any `ID`.
 
-```bash
-export ID=1
-make run-docker-client
-```
+    ```bash
+    export ID=1
+    make run-docker-client
+    ```
 
 - Run the Docker Server image
 
-```bash
-make run-docker-server
-```
+    ```bash
+    make run-docker-server
+    ```
 
 ## Compiling protocol buffers
 

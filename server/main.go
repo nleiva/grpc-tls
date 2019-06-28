@@ -19,11 +19,18 @@ const (
 	port = ":50051"
 )
 
-type server struct {
+type userData struct {
 	users map[uint32]string
 }
 
-func (s *server) GetByID(ctx context.Context, in *pb.GetByIDRequest) (*pb.User, error) {
+func NewUserData() *userData {
+	d := new(userData)
+	d.users = make(map[uint32]string)
+	d.users[1] = "Nicolas"
+	return d
+}
+
+func (s *userData) GetByID(ctx context.Context, in *pb.GetByIDRequest) (*pb.User, error) {
 	if s.users == nil {
 		s.users = make(map[uint32]string)
 	}
@@ -48,14 +55,12 @@ func main() {
 		log.Fatalf("Failed to setup tls: %v", err)
 	}
 	opts := []grpc.ServerOption{grpc.Creds(creds)}
-	// Setup a secure Server
+
 	s := grpc.NewServer(opts...)
 
-	srv := new(server)
-	srv.users = make(map[uint32]string)
-	srv.users[1] = "Nicolas"
+	data := NewUserData()
 
-	pb.RegisterGUMIServer(s, srv)
+	pb.RegisterGUMIServer(s, data)
 	log.Println("Starting server on port " + port)
 
 	if err := s.Serve(lis); err != nil {
