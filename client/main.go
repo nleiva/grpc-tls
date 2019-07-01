@@ -62,6 +62,10 @@ func tlsCredsFile(i input) ([]grpc.DialOption, error) {
 	return []grpc.DialOption{grpc.WithTransportCredentials(creds)}, nil
 }
 
+func noTLS(i input) ([]grpc.DialOption, error) {
+	return []grpc.DialOption{grpc.WithInsecure()}, nil
+}
+
 func main() {
 	id := flag.Uint("id", 1, "User ID")
 	mode := flag.Uint("mode", 1, "User ID")
@@ -83,6 +87,9 @@ func main() {
 	case 4:
 		i = input{cert: "service.pem"}
 		f = tlsCredsFile
+	case 5:
+		i = input{}
+		f = noTLS
 	}
 
 	ctx := context.Background()

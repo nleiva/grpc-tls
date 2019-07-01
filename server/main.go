@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net"
 
@@ -44,6 +45,9 @@ func (s *userData) GetByID(ctx context.Context, in *pb.GetByIDRequest) (*pb.User
 }
 
 func main() {
+	secure := flag.Bool("secure", true, "Whether to encryt the connection")
+	flag.Parse()
+
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -54,7 +58,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to setup tls: %v", err)
 	}
-	opts := []grpc.ServerOption{grpc.Creds(creds)}
+	opts := []grpc.ServerOption{}
+	if *secure {
+		opts = []grpc.ServerOption{grpc.Creds(creds)}
+	}
 
 	s := grpc.NewServer(opts...)
 

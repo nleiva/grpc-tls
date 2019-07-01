@@ -35,11 +35,17 @@ run-client-ca: ## Run Client with a given ID with CA
 run-client-file: ## Run Client with a given ID and provide the Server certificate
 	go run client/main.go -id $(ID) -mode 4
 
+run-client-insecure: ## Run Client with no secutity/encryption
+	go run client/main.go -mode 5
+
 run-docker-server: ## Run Server Docker image
 	docker run -t --rm --name my-server server
 
 run-server: ## Run Server
 	go run server/main.go
+
+run-server-insecure: ## Run Server insecurely (no encryption)
+	go run server/main.go -secure=false
 
 docker-stop: ## Stop any Docker images running
 	-@docker stop my-server
