@@ -23,6 +23,14 @@ const (
 	host = "localhost:50051"
 )
 
+const (
+	tlsNoVerify = iota + 1
+	tlsVerifyNoCA
+	tlsVerifyWithCA
+	tlsWithCertFile
+	insecureNoTLS
+)
+
 type input struct {
 	skipVerify bool
 	cert       string
@@ -75,19 +83,19 @@ func main() {
 	var i input
 
 	switch *mode {
-	case 1:
+	case tlsNoVerify:
 		i = input{skipVerify: true}
 		f = tlsCredsAuto
-	case 2:
+	case tlsVerifyNoCA:
 		i = input{skipVerify: false}
 		f = tlsCredsAuto
-	case 3:
+	case tlsVerifyWithCA:
 		i = input{ca: "ca.cert", skipVerify: false}
 		f = tlsCredsAutoCA
-	case 4:
+	case tlsWithCertFile:
 		i = input{cert: "service.pem"}
 		f = tlsCredsFile
-	case 5:
+	case insecureNoTLS:
 		i = input{}
 		f = noTLS
 	}
