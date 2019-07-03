@@ -1,6 +1,10 @@
 ID?=1
 .DEFAULT_GOAL := help
 
+.EXPORT_ALL_VARIABLES:
+PORT?=50051
+HOST?=localhost
+
 .PHONY: proto
 
 all: cert docker-build
@@ -38,6 +42,9 @@ run-client-file: ## Run Client with a given ID and provide the Server certificat
 run-client-insecure: ## Run Client with no secutity/encryption
 	go run client/main.go -mode 5
 
+run-client-default: ## Run Client with no secutity/encryption
+	go run client/main.go -mode 6
+
 run-docker-server: ## Run Server Docker image
 	docker run -t --rm --name my-server server
 
@@ -46,6 +53,11 @@ run-server: ## Run Server
 
 run-server-insecure: ## Run Server insecurely (no encryption)
 	go run server/main.go -secure=false
+
+run-server-public: ## Run Server insecurely
+	go build -o server/server server/main.go
+	sudo setcap CAP_NET_BIND_SERVICE+ep server/server
+	server/server -secure=false -public=true
 
 docker-stop: ## Stop any Docker images running
 	-@docker stop my-server

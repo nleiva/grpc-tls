@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	pb "github.com/nleiva/grpc-tls/proto"
 	"github.com/pkg/errors"
@@ -19,9 +20,19 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-const (
-	host = "localhost:50051"
+var (
+	host    = getenv("HOST") // Eg: "test.nleiva.com"
+	port    = getenv("PORT")
+	address = host + ":" + port
 )
+
+func getenv(name string) string {
+	v := os.Getenv(name)
+	if v == "" {
+		log.Panicf("%s environment variable not set.", name)
+	}
+	return v
+}
 
 const (
 	tlsNoVerify = iota + 1
@@ -29,6 +40,7 @@ const (
 	tlsVerifyWithCA
 	tlsWithCertFile
 	insecureNoTLS
+	defaultConfig
 )
 
 type input struct {
@@ -74,6 +86,11 @@ func noTLS(i input) ([]grpc.DialOption, error) {
 	return []grpc.DialOption{grpc.WithInsecure()}, nil
 }
 
+func defaultTLS(i input) ([]grpc.DialOption, error) {
+	config := &tls.Config{}
+	return []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(config))}, nil
+}
+
 func main() {
 	id := flag.Uint("id", 1, "User ID")
 	mode := flag.Uint("mode", 1, "User ID")
@@ -98,6 +115,10 @@ func main() {
 	case insecureNoTLS:
 		i = input{}
 		f = noTLS
+	case defaultConfig:
+		i = input{}
+		f = defaultTLS
+		address = host + ":443"
 	}
 
 	ctx := context.Background()
@@ -106,7 +127,7 @@ func main() {
 		log.Fatalf("problem creating the tls credentials: %v", err)
 	}
 
-	conn, err := grpc.Dial(host, opts...)
+	conn, err := grpc.Dial(address, opts...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
