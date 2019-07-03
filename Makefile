@@ -54,7 +54,7 @@ run-server: ## Run Server
 run-server-insecure: ## Run Server insecurely (no encryption)
 	go run server/main.go -secure=false
 
-run-server-public: ## Run Server insecurely
+run-server-public: ## Run Server using Let's Encrypt cert and ACME
 	go build -o server/server server/main.go
 	sudo setcap CAP_NET_BIND_SERVICE+ep server/server
 	server/server -secure=false -public=true
