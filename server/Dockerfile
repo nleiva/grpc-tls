@@ -10,6 +10,8 @@ COPY ./. .
 
 ENV GO111MODULE=on
 ENV GOPROXY=https://proxy.golang.org
+ENV PORT ${PORT}
+ENV HOST ${HOST}
 
 # Disable CGO and statically link C bindings.
 ENV CGO_ENABLED=0
@@ -29,6 +31,6 @@ COPY ./service.key /
 # COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/src/github.com/nleiva/grpc-tls/ser /
 
-EXPOSE 50051
+EXPOSE ${PORT}
 
 CMD ["/ser"]

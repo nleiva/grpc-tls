@@ -7,6 +7,8 @@ COPY ./. .
 
 ENV GO111MODULE=on
 ENV GOPROXY=https://proxy.golang.org
+ENV PORT ${PORT}
+ENV HOST ${HOST}
 
 # Disable CGO and statically link C bindings.
 ENV CGO_ENABLED=0

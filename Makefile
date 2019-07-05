@@ -21,8 +21,10 @@ cert: ## Create certificates to encrypt the gRPC connection
 		-out service.pem -days 365 -sha256 -extfile certificate.conf -extensions req_ext
 
 docker-build: ## Build Docker images for Client and Server
-	docker build -t client -f ./client/Dockerfile .
-	docker build -t server -f ./server/Dockerfile .
+	docker build -t client --build-arg HOST=${HOST} \
+		--build-arg PORT=${PORT} -f ./client/Dockerfile .
+	docker build -t server --build-arg HOST=${HOST} \
+		--build-arg PORT=${PORT} -f ./server/Dockerfile .
 
 run-docker-client: ## Run Client Docker image with a given ID
 	docker run -t --rm --name my-client -e $(ID) client

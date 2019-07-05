@@ -99,16 +99,18 @@ func main() {
 			log.Fatalf("Failed to setup TLS: %v", err)
 		}
 		opts = append(opts, grpc.Creds(creds))
-		lis, err = net.Listen("tcp", ":"+port)
-		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
-		}
 	}
 	if *public {
 		opts = append(opts, grpc.Creds(acmeCert()))
 		lis = autocert.NewListener(host)
 		port = "443"
+	} else {
+		lis, err = net.Listen("tcp", ":"+port)
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
 	}
+
 	defer lis.Close()
 	log.Println("Creating listener on port:", port)
 
