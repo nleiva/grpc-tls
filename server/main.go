@@ -118,7 +118,7 @@ func main() {
 	pb.RegisterGUMIServer(s, NewUserData())
 	log.Println("Starting gRPC services")
 
-	log.Println("Listening for incomming connections")
+	log.Println("Listening for incoming connections")
 	if *public {
 		if err = http.Serve(lis, grpcHandlerFunc(s, httpsHandler())); err != nil {
 			log.Fatalf("failed to serve: %v", err)
