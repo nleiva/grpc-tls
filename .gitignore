@@ -4,3 +4,4 @@ ca.srl
 service.key
 service.csr
 service.pem
+ca-org.cert
