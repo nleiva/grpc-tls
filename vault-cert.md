@@ -155,6 +155,7 @@ $ curl \
 
 Let's now run the client, we need to export the name of the Vault's CA certificate file as `CAFILE`.
 
+```bash
 $ export CAFILE="ca-vault.cert"
 $ make run-client-ca
 go run client/main.go -id 1 -file ca-vault.cert -mode 3
