@@ -93,6 +93,7 @@ func defaultTLS(i input) ([]grpc.DialOption, error) {
 
 func main() {
 	id := flag.Uint("id", 1, "User ID")
+	cafile := flag.String("file", "ca.cert", "CA public certificate")
 	mode := flag.Uint("mode", 1, "User ID")
 	flag.Parse()
 
@@ -107,7 +108,7 @@ func main() {
 		i = input{skipVerify: false}
 		f = tlsCredsAuto
 	case tlsVerifyWithCA:
-		i = input{ca: "ca.cert", skipVerify: false}
+		i = input{ca: *cafile, skipVerify: false}
 		f = tlsCredsAutoCA
 	case tlsWithCertFile:
 		i = input{cert: "service.pem"}
