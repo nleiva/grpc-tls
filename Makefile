@@ -4,6 +4,7 @@ ID?=1
 .EXPORT_ALL_VARIABLES:
 PORT?=50051
 HOST?=localhost
+CAFILE?="ca.cert"
 
 .PHONY: proto
 
@@ -36,7 +37,7 @@ run-client-noca: ## Run Client with a given ID without CA
 	go run client/main.go -id $(ID) -mode 2
 
 run-client-ca: ## Run Client with a given ID with CA
-	go run client/main.go -id $(ID) -mode 3
+	go run client/main.go -id $(ID) -file $(CAFILE) -mode 3
 
 run-client-file: ## Run Client with a given ID and provide the Server certificate
 	go run client/main.go -id $(ID) -mode 4

@@ -5,3 +5,4 @@ service.key
 service.csr
 service.pem
 ca-org.cert
+ca-vault.cert

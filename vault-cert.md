@@ -102,45 +102,33 @@ curl \
 
 ```bash
 $ make run-server-vault
-go run server/main.go -secure=false -cefy=true
-2019/07/14 22:15:12 Creating listener on port: 50051
-2019/07/14 22:15:12 Starting gRPC services
-2019/07/14 22:15:12 Listening for incoming connections
+go run server/main.go -self=false -cefy=true
+level=info time=2019-07-15T21:20:17.362421Z caller=main.go:203 msg="Server listening" port=50051
+level=info time=2019-07-15T21:20:17.362684Z caller=main.go:206 msg="Starting gRPC services"
+level=info time=2019-07-15T21:20:17.362737Z caller=main.go:209 msg="Listening for incoming connections"
+level=debug time=2019-07-15T21:20:26.121926Z caller=logger.go:36 server_name=localhost remote_addr=[::1]:49268 msg="Getting server certificate"
+level=debug time=2019-07-15T21:20:26.122415Z caller=logger.go:36 msg="Requesting new certificate from issuer"
+level=debug time=2019-07-15T21:20:26.240165Z caller=logger.go:36 serial=80514697307960587646287223417136054196693349002 expiry=2019-07-18T21:20:26Z msg="New certificate issued"
+level=debug time=2019-07-15T21:20:26.24021Z caller=logger.go:36 serial=80514697307960587646287223417136054196693349002 took=118.286421ms msg="Certificate found"
 ```
 
-- Run the client with `make run-client`
+- Run the client with `make run-client-ca`
+
+You need to get Vault's CA certificate first. Let's make an API call to get it and save it as `ca-vault.cert`. Do not confuse this file with `ca-cert`, which is the CA certificate of the issuer of the certificates in Vault's config; `tls_cert_file` and `tls_key_file`)
 
 ```bash
-$ make run-client
-go run client/main.go -id 1 -mode 1
-2019/07/14 22:15:43 Server says: rpc error: code = Unavailable desc = all SubConns are in TransientFailure, latest connection error: connection error: desc = "transport: authentication handshake failed: remote error: tls: internal error"
-exit status 1
-make: *** [run-client] Error 1
+$ curl \
+    --cacert ca.cert \
+    https://localhost:8200/v1/pki/ca/pem \
+    -o ca-vault.cert
 ```
 
-Vault doesn't create a new certificate (as opposed to what happens when we test it with `curl`)
+- Validate Vault CA
 
-### Troubleshooting
+Let's now run the client, we need to export the name of the Vault's CA certificate file as `CAFILE`.
 
-I see after running the client that we do contact Vault. See [Packet Capture](grpc-certify.pcap).
-
-Just to double-check, when I comment out the CA cert in the issuer.
-
-```go
-issuer := &vault.Issuer{
-    ...
-	//TLSConfig: &tls.Config{
-	//	RootCAs: cp,
-	//},
-	...
-	Role:  "my-role",
-}
-```
-
-Vault, as expected, logs:
-
-```bash
-2019-07-12T17:01:10.274-0400 [INFO]  http: TLS handshake error from 127.0.0.1:65080: remote error: tls: bad certificate
-2019-07-12T17:01:11.574-0400 [INFO]  http: TLS handshake error from 127.0.0.1:65109: remote error: tls: bad certificate
-2019-07-12T17:01:14.346-0400 [INFO]  http: TLS handshake error from 127.0.0.1:65152: remote error: tls: bad certificate
+$ export CAFILE="ca-vault.cert"
+$ make run-client-ca
+go run client/main.go -id 1 -file ca-vault.cert -mode 3
+User found:  Nicolas
 ```

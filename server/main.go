@@ -184,7 +184,7 @@ func main() {
 			opts = append(opts, grpc.Creds(creds))
 		// Certificates signed by Vault via Certify
 		case *cefy:
-			creds, err := vaultCert("ca.cert")
+			creds, err := vaultCert("ca-org.cert")
 			if err != nil {
 				level.Error(logger).Log("msg", "failed to setup TLS with Certify", "error", err)
 				os.Exit(1)
