@@ -109,7 +109,12 @@ You need to provide an `ID` which is the id of the user we want to retrieve from
 
 ## Running in Docker Containers
 
-Build Docker images with `make docker-build`.
+Build Docker images with `make docker-build`. You need to provide `HOST` and `PORT` as enviromental variables.
+
+```bash
+export HOST=grpc.nleiva.com
+export PORT=443
+```
 
 - Run the Docker Client image. Provide any `ID`.
 

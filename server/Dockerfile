@@ -7,6 +7,12 @@ ARG port=50051
 # Needs full path to work with Container's $GOPATH
 # However we don't need $GOPATH with Go modules
 WORKDIR /go/src/github.com/nleiva/grpc-tls/
+
+# Cache dependencies (if no changes)
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
 COPY ./. .
 
 ENV GO111MODULE=on
