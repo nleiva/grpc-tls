@@ -45,7 +45,7 @@ run-client-file: ## Run Client with a given ID and provide the Server certificat
 run-client-insecure: ## Run Client with no secutity/encryption
 	go run client/main.go -mode 5
 
-run-client-default: ## Run Client with no secutity/encryption
+run-client-default: ## Run Client with default TLS config
 	go run client/main.go -mode 6
 
 run-docker-server: ## Run Server Docker image
