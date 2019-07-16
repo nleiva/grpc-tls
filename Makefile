@@ -21,11 +21,18 @@ cert: ## Create certificates to encrypt the gRPC connection
 	openssl x509 -req -in service.csr -CA ca.cert -CAkey ca.key -CAcreateserial \
 		-out service.pem -days 365 -sha256 -extfile certificate.conf -extensions req_ext
 
+install-docker: ## Install Docker
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+	sudo apt-get update
+	sudo apt-get install -y docker-ce
+	sudo usermod -aG docker ${USER}
+
 docker-build: ## Build Docker images for Client and Server
-	docker build -t client --build-arg HOST=${HOST} \
-		--build-arg PORT=${PORT} -f ./client/Dockerfile .
-	docker build -t server --build-arg HOST=${HOST} \
-		--build-arg PORT=${PORT} -f ./server/Dockerfile .
+	docker build -t client --build-arg host=${HOST} \
+		--build-arg port=${PORT} -f ./client/Dockerfile .
+	docker build -t server --build-arg host=${HOST} \
+		--build-arg port=${PORT} -f ./server/Dockerfile .
 
 run-docker-client: ## Run Client Docker image with a given ID
 	docker run -t --rm --name my-client -e $(ID) client
@@ -49,7 +56,10 @@ run-client-default: ## Run Client with default TLS config
 	go run client/main.go -mode 6
 
 run-docker-server: ## Run Server Docker image
-	docker run -t --rm --name my-server server
+	docker run -t --rm \
+    	--name my-server \
+    	--publish=${PORT}:${PORT} \
+    	server
 
 run-server: ## Run Server
 	go run server/main.go
