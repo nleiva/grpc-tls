@@ -18,21 +18,21 @@ You need to provide a config file, for this example we used [vault_config.hcl](v
 
 - We are saving Vault data to a local file.
 
-```hcl
-storage "file" {
-  path = "/Users/nleiva/vault/data"
-}
-```
+    ```hcl
+    storage "file" {
+      path = "/Users/nleiva/vault/data"
+    }
+    ```
 
 - Vault will listen on `localhost` port `8200`. We also provide a Key/Certificate pair (`vault.pem` and `vault.key`)  we generated and signed with our own CA (`ca.cert`)
 
-```hcl
-listener "tcp" {
-  address     = "localhost:8200"
-  tls_cert_file = "/Users/nleiva/vault/vault.pem"
-  tls_key_file = "/Users/nleiva/vault/vault.key"
-}
-```
+    ```hcl
+    listener "tcp" {
+      address     = "localhost:8200"
+      tls_cert_file = "/Users/nleiva/vault/vault.pem"
+      tls_key_file = "/Users/nleiva/vault/vault.key"
+    }
+    ```
 
 For more info, see [Deploy Vault](https://learn.hashicorp.com/vault/getting-started/deploy).
 
