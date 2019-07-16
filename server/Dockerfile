@@ -4,6 +4,9 @@ FROM golang:1.12 as builder
 ARG host=localhost
 ARG port=50051
 
+ENV GO111MODULE=on
+ENV GOPROXY=https://proxy.golang.org
+
 # Needs full path to work with Container's $GOPATH
 # However we don't need $GOPATH with Go modules
 WORKDIR /go/src/github.com/nleiva/grpc-tls/
@@ -14,9 +17,6 @@ COPY go.sum .
 RUN go mod download
 
 COPY ./. .
-
-ENV GO111MODULE=on
-ENV GOPROXY=https://proxy.golang.org
 
 # Disable CGO and statically link C bindings.
 ENV CGO_ENABLED=0
