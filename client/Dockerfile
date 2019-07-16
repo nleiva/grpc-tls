@@ -21,9 +21,7 @@ ENV GOOS=linux
 # Build the binary with debug information removed
 RUN go build -ldflags '-w -s' -o cli client/main.go
 
-# Could be any of these base images I guess
-# FROM scratch
-# FROM alpine
+# Final image
 FROM gcr.io/distroless/base
 COPY ./service.pem /
 COPY --from=builder /go/src/github.com/nleiva/grpc-tls/cli /

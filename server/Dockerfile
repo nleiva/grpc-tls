@@ -9,9 +9,6 @@ ARG port=50051
 WORKDIR /go/src/github.com/nleiva/grpc-tls/
 COPY ./. .
 
-# https://github.com/chemidy/smallest-secured-golang-docker-image/blob/master/Dockerfile
-# RUN apk update && apk add --no-cache git ca-certificates tzdata && update-ca-certificates
-
 ENV GO111MODULE=on
 ENV GOPROXY=https://proxy.golang.org
 
@@ -21,22 +18,27 @@ ENV CGO_ENABLED=0
 # Compile for Linux
 ENV GOOS=linux
 
-# Build the binary with debug information removed
+# Build the binary with debug information removed.
 RUN go build -ldflags '-w -s' -o ser server/main.go
 
-# Could be any of these base images I guess
-# FROM scratch
-# FROM alpine
-FROM gcr.io/distroless/base
+# Final image
+FROM alpine
+
 ARG host
 ARG port
+
 ENV PORT=$port
 ENV HOST=$host
-COPY ./service.pem /
-COPY ./service.key /
-# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# Only required to run with self-signed certificates.
+# COPY ./service.pem /
+# COPY ./service.key /
+
 COPY --from=builder /go/src/github.com/nleiva/grpc-tls/ser /
+
+# Install CA certificates, we need them for tls-alpn-01 challenge.
+RUN apk update && apk add --no-cache ca-certificates tzdata && update-ca-certificates
 
 EXPOSE ${PORT}
 
-CMD ["/ser"]
+CMD ["/ser", "-self=false", "-public=true"]
