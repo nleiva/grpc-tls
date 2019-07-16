@@ -4,9 +4,11 @@
 
 Their [getting started](https://learn.hashicorp.com/vault/) process is great. In a nutshell, these are the steps requiered to reproduce the setup in this repository.
 
-1. Vault comes as a binary you can place on any path in your `$PATH`. You can download this file from [Download Vault](https://www.vaultproject.io/downloads.html).
+### Install Vault
 
-2. Start the server.
+Vault comes as a binary you can place on any path in your `$PATH`. You can download this file from [Download Vault](https://www.vaultproject.io/downloads.html).
+
+### Start Vault Server
 
 ```bash
 vault server -config=vault_config.hcl
@@ -34,7 +36,7 @@ listener "tcp" {
 
 For more info, see [Deploy Vault](https://learn.hashicorp.com/vault/getting-started/deploy).
 
-3. Initialize the server.
+### Initialize the Server
 
 You need to provide the CA certificate of the issuer of the certificates provided in Vault's config, `ca.cert` in this example. "_This file is used to verify the Vault server's SSL certificate_" [Source](https://www.vaultproject.io/docs/commands/index.html#vault_addr). Also, update Vault's listening address, `https://localhost:8200` per the config file.
 
@@ -46,7 +48,7 @@ vault operator init
 
 **Important** info on [Initializing the Vault](https://learn.hashicorp.com/vault/getting-started/deploy#initializing-the-vault): "_Initialization outputs two incredibly important pieces of information: the unseal keys and the initial root token. This is the only time ever that all of this data is known by Vault, and also the only time that the unseal keys should ever be so close together_".
 
-4. Unseal the Vault.
+### Unseal the Vault
 
 You need 3 out of the three unsealed Keys you got when initializiing the Vault. We will export them as enviromental variables and used them to unseal the Vault.
 
@@ -59,7 +61,7 @@ vault operator unseal ${uKey2}
 vault operator unseal ${uKey3}
 ```
 
-5. Test Vault.
+### Test Vault
 
 Check if you get a `200 OK`.
 
@@ -76,7 +78,9 @@ Content-Length: 294
 {"initialized":true,"sealed":false,"standby":false,"performance_standby":false,"replication_performance_mode":"disabled","replication_dr_mode":"disabled","server_time_utc":1563154949,"version":"1.1.3","cluster_name":"vault-cluster-d6f1a7ef","cluster_id":"50b7cade-fd03-c05c-9b19-05467bd285e7"}
 ```
 
-6. Enable Vault PKI Secrets Engine backend. It's best to follow instructions from [Vault](https://www.vaultproject.io/docs/secrets/pki/index.html) website. In a nutshell:
+### Enable Vault PKI Secrets Engine backend
+
+It's best to follow instructions from [Vault](https://www.vaultproject.io/docs/secrets/pki/index.html) website. In a nutshell:
 
 Enable the engine:
 
@@ -109,7 +113,9 @@ vault write pki/roles/my-role \
     max_ttl=72h
 ```
 
-7. Test Vault PKI with Common Name previously defined and specified in [vault_cn.json](vault/vault_cn.json) file.
+### Test Vault PKI
+
+Use Common Name previously defined and specified in [vault_cn.json](vault/vault_cn.json) file.
 
 ```bash
 export TOKEN="..."
@@ -124,7 +130,9 @@ curl \
 
 ## Certify
 
-- Run the server with `make run-server-vault`
+### Server
+
+Run the server with `make run-server-vault`
 
 ```bash
 $ make run-server-vault
@@ -140,9 +148,11 @@ level=debug time=2019-07-15T21:20:26.24021Z caller=logger.go:36 serial=805146973
 
 You won't see `Requesting new certificate from issuer` on the subsequect calls as the cert will be cached.
 
-- Run the client with `make run-client-ca`
+### Client
 
-You need to get Vault's CA certificate first. Let's make an API call to get it and save it as `ca-vault.cert`. Do not confuse this file with `ca-cert`, which is the CA certificate of the issuer of the certificates in Vault's config; `tls_cert_file` and `tls_key_file`)
+Run the client with `make run-client-ca`.
+
+You need to get Vault's CA certificate first. Let's make an API call to get it and save it as `ca-vault.cert`. Do not confuse this file with `ca-cert`, which is the CA certificate of the issuer of the certificates in Vault's config; `tls_cert_file` and `tls_key_file`.
 
 ```bash
 $ curl \
@@ -151,9 +161,7 @@ $ curl \
     -o ca-vault.cert
 ```
 
-- Validate Vault CA
-
-Let's now run the client, we need to export the name of the Vault's CA certificate file as `CAFILE`.
+Now we can run the client and validate Vault CA. We need to export the name of the Vault's CA certificate file as `CAFILE`.
 
 ```bash
 $ export CAFILE="ca-vault.cert"
