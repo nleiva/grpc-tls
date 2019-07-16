@@ -102,10 +102,10 @@ See [vault-cert.md](vault-cert.md) for setup details.
 
 You need to provide an `ID` which is the id of the user we want to retrieve from the Server, for example `export ID=1`. Also, the name of the Vault's CA certificate file as `CAFILE`.
 
-    ```bash
-    export CAFILE="ca-vault.cert"
-    make run-client-ca
-    ```
+```bash
+export CAFILE="ca-vault.cert"
+make run-client-ca
+```
 
 ## Running in Docker Containers
 
