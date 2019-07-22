@@ -73,14 +73,15 @@ func (s *userData) GetByID(ctx context.Context, in *pb.GetByIDRequest) (*pb.User
 	return nil, errors.New("user not found")
 }
 
-func acmeCert() credentials.TransportCredentials {
+func acmeCert() (credentials.TransportCredentials, net.Listener) {
 	manager := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		Cache:      autocert.DirCache("golang-autocert"),
 		HostPolicy: autocert.HostWhitelist(host),
 		// Email: "",
 	}
-	return credentials.NewTLS(manager.TLSConfig())
+
+	return credentials.NewTLS(manager.TLSConfig()), manager.Listener()
 }
 
 type RSA struct {
@@ -161,13 +162,15 @@ func main() {
 
 	opts := []grpc.ServerOption{}
 	var lis net.Listener
+	var creds credentials.TransportCredentials
 	var err error
 	switch {
 	// Public domain
 	case *public:
-		opts = append(opts, grpc.Creds(acmeCert()))
-		lis = autocert.NewListener(host)
-		port = "443"
+		creds, lis = acmeCert()
+		opts = append(opts, grpc.Creds(creds))
+		// lis = autocert.NewListener(host)
+		// port = "443"
 	// Private domain
 	default:
 		switch {
